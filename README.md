@@ -1,9 +1,28 @@
 # wordpress-indieweb-docker
 ## setup
-* brew install docker
-* brew install docker-compose
-* brew cask install docker
-* docker-machine create dev --driver xhyve --xhyve-experimental-nfs-share
+### install 
+<!-- @setup -->
+```bash
+brew install docker
+brew install docker-compose
+brew cask install docker
+brew install   docker-machine-driver-xhyve
+
+```
+
+### create machine
+<!-- @machine -->
+```bash
+docker-machine create wordpress-indieweb-docker --driver xhyve
+```
+
 ## run
-* docker-machine start dev
-* docker-compose up -d
+<!-- @run -->
+```bash
+eval $(docker-machine env wordpress-indieweb-docker)
+docker-machine start wordpress-indieweb-docker
+docker-compose up -d
+```
+
+
+
