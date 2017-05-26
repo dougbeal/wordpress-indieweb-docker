@@ -1,0 +1,9 @@
+[submodule "indieauth.com"]
+	path = indieauth/indieauth.com
+	url = https://github.com/aaronpk/IndieAuth.com.git
+[submodule "onwyourgram.com"]
+	path = ownyourgram/ownyourgram.com
+	url = https://github.com/aaronpk/OwnYourGram.git
+[submodule "ownyourswarm.com"]
+	path = ownyourswarm/ownyourswarm.com
+	url = https://github.com/aaronpk/OwnYourSwarm.git
