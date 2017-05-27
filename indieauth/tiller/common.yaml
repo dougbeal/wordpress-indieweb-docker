@@ -1,0 +1,10 @@
+---
+exec: [ "/usr/local/bin/bundle", "exec", "thin", "start" ]
+data_sources: [ "file" , "environment" ]
+template_sources: [ "file" ]
+environments:
+  development:
+    config.yml.erb:
+      target: "/app/indieauth.com/config.yml"
+    thin.yml.erb:
+      target: "/app/indieauth.com/thin.yml"

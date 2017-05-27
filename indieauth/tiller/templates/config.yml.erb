@@ -1,0 +1,41 @@
+development:
+  root: https://<%= env_hostname %>:<%= env_port %>
+  openid_root: https://openid.example.com
+  this_server: primary.example.com
+  cookie_domain: ".example.com"
+  stats:
+    server: https://stats.example.com
+    token: "000000"
+  session_secret: "PUT SOMETHING HERE"
+  jwt_key: "PUT SOMETHING HERE"
+  ga_id: UA-XXXXXXXX
+  credit: <a href="http://indiewebcamp.com/sponsors">sponsors</a> of IndieWebCamp events
+  redis:
+    host: <%= env_redis_ip %>
+    port: <%= env_redis_port %>
+  mailgun:
+    api_key: xxx
+    domain: mail.example.com
+    from: "login@indieauth.com"
+  providers:
+    flickr:
+      client_id: 
+      client_secret: 
+    github:
+      client_id: 
+      client_secret: 
+    google_oauth2:
+      client_id: 
+      client_secret: 
+    twitter:
+      client_id: 
+      client_secret: 
+    lastfm:
+      client_id: 
+      client_secret: 
+    beeminder:
+      client_id: 
+      client_secret: 
+    eventbrite:
+      client_id: 
+      client_secret: 
