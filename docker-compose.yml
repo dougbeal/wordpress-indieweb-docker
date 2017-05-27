@@ -1,6 +1,5 @@
 version: '3'
 
-
 services:
   database:
     image: mariadb:5.5
@@ -12,14 +11,24 @@ services:
       MYSQL_DATABASE: wordpress
       MYSQL_USER: wordpress
       MYSQL_PASSWORD: wordpress
+      MYSQL_TCP_PORT: ${DATABASE_PORT}
 
   webserver:
-    image: nginx:latest
+    image: nginx:alpine
     ports:
       - "8000:80"
     restart: always
     links:
       - wordpress
+      - indieauth
+    volumes:
+      - public-key:/usr/share/nginx/html/.well-known/public-key
+      #- ./nginx.conf:/etc/nginx/nginx.conf:ro      
+      #- ?:/etc/nginx/conf.d/wordpress.template
+      #- ?:/etc/nginx/conf.d/indieauth.template
+    environment:
+      - NGINX_HOST ${HOSTNAME}
+      - NGINX_PORT 80
 
   # 4.7-branch:4.7.5
   wordpress:
@@ -30,11 +39,10 @@ services:
       - wordpress:/app/wordpress
       - wp-themes:/app/wordpress/wp-content/themes/the-theme
       - ownyougram:/app/ownyourgram.com
-      - public-key:/app/public-key
     links:
       - database
     environment:
-      WORDPRESS_DB_HOST: database:3306
+      WORDPRESS_DB_HOST: database:${DATABASE_PORT}
       WORDPRESS_DB_USER: wordpress
       WORDPRESS_DB_PASSWORD: wordpress      
 
@@ -45,15 +53,13 @@ services:
     depends_on:
       - redis
     build: indieauth
-    ports:
-      - "8001:3000"
     links:
       - redis
     environment:
       REDIS_IP: redis
       REDIS_PORT: 6379
       HOSTNAME: indieauth
-      PORT: 3000
+      PORT: ${INDIEAUTH_PORT}
 
   ownyourgram:
     build: ownyourgram
@@ -73,6 +79,7 @@ volumes:
     wordpress:
     wp-themes:
     public-key:
+    nginx-config:
 
 networks:
   default:
