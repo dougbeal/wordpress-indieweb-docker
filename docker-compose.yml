@@ -12,37 +12,69 @@ services:
       MYSQL_DATABASE: wordpress
       MYSQL_USER: wordpress
       MYSQL_PASSWORD: wordpress
-       
+
   webserver:
     depends_on:
-      - db     
+      - database
     image: nginx:latest
     ports:
       - "8000:80"
     restart: always
     environment:
-      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_HOST: database:3306
       WORDPRESS_DB_USER: wordpress
-      WORDPRESS_DB_PASSWORD: wordpress     
+      WORDPRESS_DB_PASSWORD: wordpress
 
   # 4.7-branch:4.7.5
   wordpress:
     depends_on:
       - webserver
-    image: wordpress:latest
+    build: wordpress
     volumes:
-      - ./data:/data
-      - ./wp-content:/app/wp-content/themes/the-theme
+      - wordpress:/app/wordpress
+      - wp-themes:/app/wordpress/wp-content/themes/the-theme
+      - ownyougram:/app/ownyourgram.com
+      - public-key:/app/public-key
+    links:
+      - webserver
+      - database
+
+  redis:
+    image: redis:alpine
 
   indieauth:
+    depends_on:
+      - redis
     build: indieauth
     ports:
-      - "8000:80"    
+      - "8001:3000"
+    links:
+      - redis
+    environment:
+      REDIS_IP: redis
+      REDIS_PORT: 6379
+      HOSTNAME: indieauth
+      PORT: 3000
 
   ownyourgram:
     build: ownyourgram
     depends_on:
       - webserver
+    volumes:
+      - ownyougram:/app/ownyourgram.com
+
+  pgp:
+    build: pgp-identity
+    volumes:
+      - public-key:/app/pgp-identity/public-key
 
 volumes:
     db_data:
+    ownyougram:
+    wordpress:
+    wp-themes:
+    public-key:
+
+networks:
+  default:
+    driver: bridge
