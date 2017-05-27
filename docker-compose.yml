@@ -14,21 +14,17 @@ services:
       MYSQL_PASSWORD: wordpress
 
   webserver:
-    depends_on:
-      - database
     image: nginx:latest
     ports:
       - "8000:80"
     restart: always
-    environment:
-      WORDPRESS_DB_HOST: database:3306
-      WORDPRESS_DB_USER: wordpress
-      WORDPRESS_DB_PASSWORD: wordpress
+    links:
+      - wordpress
 
   # 4.7-branch:4.7.5
   wordpress:
     depends_on:
-      - webserver
+      - database
     build: wordpress
     volumes:
       - wordpress:/app/wordpress
@@ -36,8 +32,11 @@ services:
       - ownyougram:/app/ownyourgram.com
       - public-key:/app/public-key
     links:
-      - webserver
       - database
+    environment:
+      WORDPRESS_DB_HOST: database:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress      
 
   redis:
     image: redis:alpine
