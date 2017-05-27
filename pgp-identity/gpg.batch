@@ -1,0 +1,15 @@
+Key-Type: RSA
+Key-Length: 2048 
+Subkey-Type: default
+Subkey-Length: 2048
+Name-Real: Docker Temp Identity
+Name-Comment: No Passphrase
+Name-Email: root@support_a_mailserver.com
+Expire-Date: 0
+%echo start control statements
+%no-protection
+%transient-key
+
+#%pubring private-indieauth-identity.key
+%commit
+%echo done
