@@ -13,14 +13,14 @@ brew install   docker-machine-driver-xhyve
 ### create machine
 <!-- @machine -->
 ```bash
-docker-machine create wordpress-indieweb-docker --driver xhyve
+docker-machine create wordpress-indieweb --driver xhyve
 ```
 
 ## run
 <!-- @run -->
 ```bash
-eval $(docker-machine env wordpress-indieweb-docker)
-docker-machine start wordpress-indieweb-docker
+eval $(docker-machine env wordpress-indieweb)
+docker-machine start wordpress-indieweb
 docker-compose build
 docker-compose up -d
 ```
