@@ -1,7 +1,8 @@
-version: '2'
+version: '3'
+
 
 services:
-  db:
+  database:
     image: mariadb:5.5
     volumes:
       - db_data:/var/lib/mysql
