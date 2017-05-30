@@ -1,53 +1,118 @@
-version: '3'
+version: '3.0'
 
 services:
   database:
     image: mariadb:5.5
     volumes:
-      - db_data:/var/lib/mysql
-    restart: always
+      - ./volumes/database:/var/lib/mysql
+    restart: on-failure
     environment:
-      MYSQL_ROOT_PASSWORD: somewordpress
+      MYSQL_ROOT_PASSWORD: rootwordpress
       MYSQL_DATABASE: wordpress
       MYSQL_USER: wordpress
       MYSQL_PASSWORD: wordpress
       MYSQL_TCP_PORT: ${DATABASE_PORT}
+    networks:
+      - backend
 
   webserver:
     build: webserver
+    depends_on:
+      - pgp
     ports:
       - "8000:80"
     restart: always
     links:
       - wordpress
       - indieauth
+      - pgp
     volumes:
-      - public-key:/usr/share/nginx/html/.well-known/public-key
-      #- ./nginx.conf:/etc/nginx/nginx.conf:ro      
-      #- ?:/etc/nginx/conf.d/wordpress.template
-      #- ?:/etc/nginx/conf.d/indieauth.template
+      # wait for v3.2 to be more widespread
+      # - type: volume
+      #   source: public-key
+      #   target: ${WEBSERVER_ROOT}/.well-known/public-key
+      #   volume:
+      #     nocopy: true
+      #     read_only: true
+      - public-key:${WEBSERVER_ROOT}/.well-known/public-key
+      - ./volumes/wordpress:${WEBSERVER_ROOT}
+      - ./volumes/wp-themes:${WEBSERVER_ROOT}/wp-content/themes
+      - ./volumes/wp-plugins:${WEBSERVER_ROOT}/wp-content/plugins
     environment:
-      - NGINX_HOST ${HOSTNAME}
-      - NGINX_PORT 80
+      NGINX_HOST: ${HOSTNAME}
+      NGINX_PORT: 80
+      WORDPRESS_HOST: "${WORDPRESS_HOST}"
+    networks:
+      - frontend
+      - backend
 
-  # 4.7-branch:4.7.5
+  pgp:
+    build: pgp-identity
+    volumes:
+      - public-key:/app/pgp-identity/public-key
+    networks:
+      - backend
+      
   wordpress:
     depends_on:
       - database
+    #image: wordpress:4.7.5-php7.0-fpm-alpine
+    #image: wordpress:4.7.5-php7.0-fpm-alpine
     build: wordpress
     volumes:
-      - wordpress:/app/wordpress
-      - wp-themes:/app/wordpress/wp-content/themes/the-theme
-      - ownyougram:/app/ownyourgram.com
+      - ./volumes/wordpress:${WORDPRESS_PATH}
+      - ./volumes/wp-themes:${WORDPRESS_PATH}/wp-content/themes
+      - ./volumes/wp-plugins:${WORDPRESS_PATH}/wp-content/plugins
     links:
       - database
     environment:
-      WORDPRESS_DB_HOST: database:${DATABASE_PORT}
+      WORDPRESS_DB_HOST: "${DATABASE_HOST}:${DATABASE_PORT}"
       WORDPRESS_DB_USER: wordpress
-      WORDPRESS_DB_PASSWORD: wordpress      
+      WORDPRESS_DB_PASSWORD: wordpress
+    networks:
+      - backend
+
+  wpcli:
+    depends_on:
+      - database
+      - wordpress
+    links:
+      - database
+    image: wordpress:cli-php7.1
+    volumes:
+      - ./volumes/wordpress:${WORDPRESS_PATH}
+      - ./volumes/wp-themes:${WORDPRESS_PATH}/wp-content/themes
+      - ./volumes/wp-plugins:${WORDPRESS_PATH}/wp-content/plugins      
+    environment:
+      WORDPRESS_DB_HOST: "${DATABASE_HOST}:${DATABASE_PORT}"
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+    networks:
+      - backend
+    #working_dir: /var/www/html
+    #command: ["wp", "--path='/var/www/html'", "shell"]
+    #command: ["sh"]
+
+            
+    volumes:
+      - wordpress:/var/www/html
+      - sempress:/var/www/html/wp-content/themes/sempress
+      - sempress-child:/var/www/html/wp-content/themes/sempress-child
+    links:
+      - database
+
+    environment:
+      WORDPRESS_HOST: "${WORDPRESS_HOST}"
+      WORDPRESS_DB_HOST: "${DATABASE_HOST}:${DATABASE_PORT}"
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+    networks:
+      - backend      
 
   redis:
     image: redis:alpine
+    networks:
+      - backend    
 
   indieauth:
     depends_on:
@@ -60,6 +125,8 @@ services:
       REDIS_PORT: 6379
       HOSTNAME: indieauth
       PORT: ${INDIEAUTH_PORT}
+    networks:
+      - backend      
 
   ownyourgram:
     build: ownyourgram
@@ -67,20 +134,20 @@ services:
       - webserver
     volumes:
       - ownyougram:/app/ownyourgram.com
+    networks:
+      - backend      
 
-  pgp:
-    build: pgp-identity
-    volumes:
-      - public-key:/app/pgp-identity/public-key
+
 
 volumes:
     db_data:
     ownyougram:
     wordpress:
-    wp-themes:
+    sempress:      
+    sempress-child:
     public-key:
     nginx-config:
 
 networks:
-  default:
-    driver: bridge
+  frontend:
+  backend:

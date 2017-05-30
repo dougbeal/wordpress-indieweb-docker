@@ -1,7 +1,7 @@
 # wordpress-indieweb-docker
 ## setup
 ### install 
-<!-- @setup -->
+<!-- @setup @docker -->
 ```bash
 brew install docker
 brew install docker-compose
@@ -9,20 +9,43 @@ brew cask install docker
 brew install   docker-machine-driver-xhyve
 
 ```
+### wordpress combined Dockefile
+must be run from README.md directory :(
+`(cd ~/git/wordpress-indieweb-docker/ &&  mdrip --label wordpress --label dockerfile --mode test README.md )`
+#### preq
+<!-- @preq @wordpress @dockerfile -->
+```
+brew install jq
+brew install gnu-sed
+```
+#### install
+<!-- @install @wordpress @dockerfile -->
+```
+shopt -s expand_aliases
+alias sed=$(which gsed)
+cd wordpress/docker-library-wordpress
+source ./update.sh
 
+```
 ### create machine
 <!-- @machine -->
 ```bash
-docker-machine create wordpress-indieweb --driver xhyve
+docker-machine create indieweb --driver xhyve
 ```
 
 ## run
 <!-- @run -->
 ```bash
-eval $(docker-machine env wordpress-indieweb)
-docker-machine start wordpress-indieweb
+eval $(docker-machine env indieweb)
+export COMPOSE_PROJECT_NAME=indieweb
+docker-machine start indieweb
 docker-compose build
-docker-compose up -d
+docker-compose -p indieweb up -d
+```
+### debug up, use project name indieweb
+<!-- @debug -->
+```bash
+docker-compose -f docker-compose.yml -f debug.yml -p indieweb up -d
 ```
 
 
