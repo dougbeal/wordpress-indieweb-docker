@@ -1,0 +1,41 @@
+development:
+  root: https://{{getenv "/indieweb/indieauth/domain"}}:{{getenv "/indieweb/indieauth/port"}}
+  openid_root: https://openid.{{getenv "/indieweb/indieauth/domain"}}
+  this_server: primary.{{getenv "/indieweb/indieauth/domain"}}
+  cookie_domain: ".{{getenv "/indieweb/indieauth/domain"}}"
+  stats:
+    server: https://stats.{{getenv "/indieweb/indieauth/domain"}}
+    token: "000000"
+  session_secret: "PUT SOMETHING HERE"
+  jwt_key: "PUT SOMETHING HERE"
+  ga_id: UA-XXXXXXXX
+  credit: <a href="http://indiewebcamp.com/sponsors">sponsors</a> of IndieWebCamp events
+  redis:
+    host: {{getenv "/indieweb/indieauth/redis/hostname"}}
+    port: {{getenv "/indieweb/indieauth/redis/port"}}
+  mailgun:
+    api_key: xxx
+    domain: mail.example.com
+    from: "login@indieauth.com"
+  providers:
+    flickr:
+      client_id: 
+      client_secret: 
+    github:
+      client_id: 
+      client_secret: 
+    google_oauth2:
+      client_id: 
+      client_secret: 
+    twitter:
+      client_id: 
+      client_secret: 
+    lastfm:
+      client_id: 
+      client_secret: 
+    beeminder:
+      client_id: 
+      client_secret: 
+    eventbrite:
+      client_id: 
+      client_secret: 
