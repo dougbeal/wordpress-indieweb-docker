@@ -56,8 +56,6 @@ services:
   wordpress:
     depends_on:
       - database
-    #image: wordpress:4.7.5-php7.0-fpm-alpine
-    #image: wordpress:4.7.5-php7.0-fpm-alpine
     build: wordpress
     volumes:
       - ./volumes/wordpress:${WORDPRESS_PATH}
@@ -72,43 +70,6 @@ services:
     networks:
       - backend
 
-  wpcli:
-    depends_on:
-      - database
-      - wordpress
-    links:
-      - database
-    image: wordpress:cli-php7.1
-    volumes:
-      - ./volumes/wordpress:${WORDPRESS_PATH}
-      - ./volumes/wp-themes:${WORDPRESS_PATH}/wp-content/themes
-      - ./volumes/wp-plugins:${WORDPRESS_PATH}/wp-content/plugins      
-    environment:
-      WORDPRESS_DB_HOST: "${DATABASE_HOST}:${DATABASE_PORT}"
-      WORDPRESS_DB_USER: wordpress
-      WORDPRESS_DB_PASSWORD: wordpress
-    networks:
-      - backend
-    #working_dir: /var/www/html
-    #command: ["wp", "--path='/var/www/html'", "shell"]
-    #command: ["sh"]
-
-            
-    volumes:
-      - wordpress:/var/www/html
-      - sempress:/var/www/html/wp-content/themes/sempress
-      - sempress-child:/var/www/html/wp-content/themes/sempress-child
-    links:
-      - database
-
-    environment:
-      WORDPRESS_HOST: "${WORDPRESS_HOST}"
-      WORDPRESS_DB_HOST: "${DATABASE_HOST}:${DATABASE_PORT}"
-      WORDPRESS_DB_USER: wordpress
-      WORDPRESS_DB_PASSWORD: wordpress
-    networks:
-      - backend      
-
   redis:
     image: redis:alpine
     networks:
@@ -121,10 +82,10 @@ services:
     links:
       - redis
     environment:
-      REDIS_IP: redis
-      REDIS_PORT: 6379
-      HOSTNAME: indieauth
-      PORT: ${INDIEAUTH_PORT}
+      /indieweb/indieauth/redis/hostname: redis
+      /indieweb/indieauth/redis/port: 6379
+      /indieweb/indieauth/domain: indieauth
+      /indieweb/indieauth/port: ${INDIEAUTH_PORT}
     networks:
       - backend      
 
@@ -136,7 +97,6 @@ services:
       - ownyougram:/app/ownyourgram.com
     networks:
       - backend      
-
 
 
 volumes:

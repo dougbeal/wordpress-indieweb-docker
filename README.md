@@ -33,6 +33,15 @@ source ./update.sh
 docker-machine create indieweb --driver xhyve
 ```
 
+### (Create confd Alpine package for runtime config templating)[https://github.com/kelseyhightower/confd/blob/master/docs/installation.md]
+<!-- @build @confd -->
+```
+cd deps/confd
+docker build -t confd_builder -f Dockerfile.build.alpine .
+docker run -ti --rm -v $(pwd):/app confd_builder ./build
+cd -
+```
+
 ## run
 <!-- @run -->
 ```bash
@@ -48,6 +57,19 @@ docker-compose -p indieweb up -d
 docker-compose -f docker-compose.yml -f debug.yml -p indieweb up -d
 ```
 
+## wordpress 
+### themes
+<!-- @wordpress @theme -->
+```
+docker exec indieweb_wordpress_1 wp --allow-root theme install --activate SemPress 
+```
+
+### plugins
+<!-- @wordpress @plugin -->
+```
+docker exec indieweb_wordpress_1 wp --allow-root plugin install --activate indieweb \
+    
+```
 
 
 ## dependencies

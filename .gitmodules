@@ -9,3 +9,15 @@
 	path = ownyourswarm/ownyourswarm.com
 	url = https://github.com/aaronpk/OwnYourSwarm.git
 
+[submodule "wordpress/docker-library-wordpress"]
+	path = wordpress/docker-library-wordpress
+	url = https://github.com/dougbeal/docker-library-wordpress.git
+[submodule "wait-for"]
+	path = wait-for
+	url = https://github.com/mrako/wait-for.git
+[submodule "wordpress-cli/wait-for"]
+	path = wordpress-cli/wait-for
+	url = https://github.com/mrako/wait-for.git
+[submodule "deps/confd"]
+	path = deps/confd
+	url = https://github.com/kelseyhightower/confd
