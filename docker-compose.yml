@@ -5,6 +5,7 @@ services:
     image: mariadb:5.5
     volumes:
       - ./volumes/database:/var/lib/mysql
+      - ./volumes/sql:/docker-entrypoint-initdb.d
     restart: on-failure
     environment:
       MYSQL_ROOT_PASSWORD: rootwordpress
@@ -14,7 +15,7 @@ services:
       MYSQL_TCP_PORT: ${DATABASE_PORT}
     networks:
       - backend
-
+    # docker exec indieweb_database_1 "mysql -u ${MYSQL_USER} -p ${MYSQL_USER} < /sql/dougbeal_wp116.sql"
   webserver:
     build: webserver
     depends_on:
@@ -100,13 +101,14 @@ services:
 
 
 volumes:
-    db_data:
-    ownyougram:
-    wordpress:
-    sempress:      
-    sempress-child:
-    public-key:
-    nginx-config:
+  sql:
+  db_data:
+  ownyougram:
+  wordpress:
+  sempress:      
+  sempress-child:
+  public-key:
+  nginx-config:
 
 networks:
   frontend:
