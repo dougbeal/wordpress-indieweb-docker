@@ -30,7 +30,7 @@ source ./update.sh
 ### create machine
 <!-- @machine -->
 ```bash
-docker-machine create indieweb --driver xhyve
+docker-machine create wordpress-indieweb-docker --driver xhyve
 ```
 
 ### (Create confd Alpine package for runtime config templating)[https://github.com/kelseyhightower/confd/blob/master/docs/installation.md]
@@ -45,9 +45,9 @@ cd -
 ## run
 <!-- @run -->
 ```bash
-eval $(docker-machine env indieweb)
+eval $(docker-machine env wordpress-indieweb-docker)
 export COMPOSE_PROJECT_NAME=indieweb
-docker-machine start indieweb
+docker-machine start wordpress-indieweb-docker
 docker-compose build
 docker-compose -p indieweb up -d
 ```
@@ -67,7 +67,7 @@ docker exec indieweb_wordpress_1 wp --allow-root theme install --activate SemPre
 ### plugins
 <!-- @wordpress @plugin -->
 ```
-docker exec indieweb_wordpress_1 wp --allow-root plugin install --activate indieweb \
+docker exec indieweb_wordpress_1 wp --allow-root plugin install --activate indieweb 
     
 ```
 
