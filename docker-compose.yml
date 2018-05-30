@@ -1,20 +1,23 @@
-version: '3.0'
+version: '3'
 
 services:
   database:
     image: mariadb:5.5
     volumes:
-      - ./volumes/database:/var/lib/mysql
-      - ./volumes/sql:/docker-entrypoint-initdb.d
+      - database:/var/lib/mysql
+      - import-database:/docker-entrypoint-initdb.d
     restart: on-failure
+    ports:
+      - "${DATABASE_PORT}:${DATABASE_PORT}"
     environment:
       MYSQL_ROOT_PASSWORD: rootwordpress
       MYSQL_DATABASE: wordpress
       MYSQL_USER: wordpress
       MYSQL_PASSWORD: wordpress
-      MYSQL_TCP_PORT: ${DATABASE_PORT}
+      MYSQL_TCP_PORT: "${DATABASE_PORT}"
     networks:
       - backend
+      - debug
     # docker exec indieweb_database_1 "mysql -u ${MYSQL_USER} -p ${MYSQL_USER} < /sql/dougbeal_wp116.sql"
   webserver:
     build: webserver
@@ -36,18 +39,19 @@ services:
       #     nocopy: true
       #     read_only: true
       - public-key:${WEBSERVER_ROOT}/.well-known/public-key
-      - ./volumes/wordpress:${WEBSERVER_ROOT}
-      - ./volumes/wp-themes:${WEBSERVER_ROOT}/wp-content/themes
-      - ./volumes/wp-plugins:${WEBSERVER_ROOT}/wp-content/plugins
+      - wordpress:${WEBSERVER_ROOT}
+      - wordpress-themes:${WEBSERVER_ROOT}/wp-content/themes
+      - wordpress-plugins:${WEBSERVER_ROOT}/wp-content/plugins
     environment:
       NGINX_HOST: ${HOSTNAME}
       NGINX_PORT: 80
       WORDPRESS_HOST: "${WORDPRESS_HOST}"
     networks:
       - frontend
+      - debug
       - backend
 
-  pgp:
+  pgp: # build pgp identity for login
     build: pgp-identity
     volumes:
       - public-key:/app/pgp-identity/public-key
@@ -57,24 +61,78 @@ services:
   wordpress:
     depends_on:
       - database
+      - webserver
     build: wordpress
     volumes:
-      - ./volumes/wordpress:${WORDPRESS_PATH}
-      - ./volumes/wp-themes:${WORDPRESS_PATH}/wp-content/themes
-      - ./volumes/wp-plugins:${WORDPRESS_PATH}/wp-content/plugins
+      - wordpress:${WORDPRESS_PATH}
+      - wordpress-themes:${WORDPRESS_PATH}/wp-content/themes
+      - wordpress-plugins:${WORDPRESS_PATH}/wp-content/plugins
     links:
       - database
     environment:
+      WORDPRESS_PATH: ${WEBSERVER_ROOT}/wordpress
       WORDPRESS_DB_HOST: "${DATABASE_HOST}:${DATABASE_PORT}"
       WORDPRESS_DB_USER: wordpress
       WORDPRESS_DB_PASSWORD: wordpress
     networks:
       - backend
+      - debug
+
+  webserver-quill:
+    build: webserver
+    ports:
+      - "8001:80"
+    restart: always
+    volumes:
+      # wait for v3.2 to be more widespread
+      # - type: volume
+      #   source: public-key
+      #   target: ${WEBSERVER_ROOT}/.well-known/public-key
+      #   volume:
+      #     nocopy: true
+      #     read_only: true
+      - quill:${WEBSERVER_ROOT}
+    environment:
+      NGINX_HOST: ${HOSTNAME}
+      NGINX_PORT: 80
+    networks:
+      - frontend
+      - debug
+      - backend
+      
+  quill:
+    build: quill
+    depends_on:
+      - database
+      - webserver-quill
+    build: quill
+    links:
+      - database
+      - webserver
+    networks:
+      - backend
+      - debug      
+    
+  
+  # wordpress-cli:
+  #   build: wordpress/cli
+  #   depends_on:
+  #     - wordpress
+  #   volumes:
+  #     - wordpress:${WORDPRESS_PATH}
+  #     - wordpress-themes:${WORDPRESS_PATH}/wp-content/themes
+  #     - wordpress-plugins:${WORDPRESS_PATH}/wp-content/plugins
+  #   links:
+  #     - database
+  #     - wordpress      
+  #   networks:
+  #     - backend      
 
   redis:
     image: redis:alpine
     networks:
-      - backend    
+      - backend
+      - debug
 
   indieauth:
     depends_on:
@@ -88,7 +146,8 @@ services:
       /indieweb/indieauth/domain: indieauth
       /indieweb/indieauth/port: ${INDIEAUTH_PORT}
     networks:
-      - backend      
+      - backend
+      - debug
 
   ownyourgram:
     build: ownyourgram
@@ -97,19 +156,58 @@ services:
     volumes:
       - ownyougram:/app/ownyourgram.com
     networks:
-      - backend      
+      - backend
+      - debug
 
 
 volumes:
-  sql:
-  db_data:
-  ownyougram:
+  database:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/volumes/database
+      o: bind    
   wordpress:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/volumes/wordpress
+      o: bind
+  wordpress-themes:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/volumes/wordpress-themes
+      o: bind
+  wordpress-plugins:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/volumes/wordpress-plugins
+      o: bind      
+  import-wordpress:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/volumes/import-wordpress
+      o: bind
+  import-database:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/volumes/import-database
+      o: bind
+  public-key:      
   sempress:      
   sempress-child:
-  public-key:
   nginx-config:
+  sql:
+  ownyougram:
 
 networks:
   frontend:
+    driver: bridge
+  debug:
+    driver: bridge
   backend:
+    internal: true
