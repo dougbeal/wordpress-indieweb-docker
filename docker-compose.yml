@@ -19,17 +19,15 @@ services:
       - backend
       - debug
     # docker exec indieweb_database_1 "mysql -u ${MYSQL_USER} -p ${MYSQL_USER} < /sql/dougbeal_wp116.sql"
+    
   webserver:
     build: webserver
     depends_on:
       - pgp
+      - wordpress      
     ports:
       - "8000:80"
     restart: always
-    links:
-      - wordpress
-      - indieauth
-      - pgp
     volumes:
       # wait for v3.2 to be more widespread
       # - type: volume
@@ -61,7 +59,6 @@ services:
   wordpress:
     depends_on:
       - database
-      - webserver
     build: wordpress
     volumes:
       - wordpress:${WORDPRESS_PATH}
@@ -80,6 +77,8 @@ services:
 
   webserver-quill:
     build: webserver
+    depends_on:
+      - quill
     ports:
       - "8001:80"
     restart: always
@@ -104,11 +103,8 @@ services:
     build: quill
     depends_on:
       - database
-      - webserver-quill
-    build: quill
-    links:
-      - database
-      - webserver
+    volumes:
+      - quill:${WEBSERVER_ROOT}/Quill
     networks:
       - backend
       - debug      
@@ -173,6 +169,12 @@ volumes:
       type: none
       device: ${PWD}/volumes/wordpress
       o: bind
+  quill:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/volumes/quill
+      o: bind      
   wordpress-themes:
     driver: local
     driver_opts:
@@ -197,7 +199,8 @@ volumes:
       type: none
       device: ${PWD}/volumes/import-database
       o: bind
-  public-key:      
+  public-key:
+  quill:
   sempress:      
   sempress-child:
   nginx-config:
