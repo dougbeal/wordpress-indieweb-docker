@@ -1,4 +1,4 @@
-FROM wordpress:4.9.6-php7.1-fpm-alpine
+FROM wordpress:4.9.6-php7.2-fpm-alpine
 #wordpress:4.7.5-php7.0-fpm-alpine-cli
 #./docker-library-wordpress/php7.1/fpm-cli-alpine/Dockerfiles
 #wordpress:4.7.5-php7.0-fpm-alpine
