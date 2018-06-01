@@ -109,7 +109,7 @@ services:
     depends_on:
       - database
     volumes:
-      - quill:${WEBSERVER_ROOT}/Quill
+      - quill:/var/www/html/Quill
     networks:
       - backend
       - debug
@@ -193,6 +193,11 @@ volumes:
       o: bind
   public-key:
   quill:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/volumes/quill
+      o: bind    
   sempress:      
   sempress-child:
   nginx-config:
