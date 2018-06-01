@@ -20,11 +20,13 @@ services:
       - debug
     # docker exec indieweb_database_1 "mysql -u ${MYSQL_USER} -p ${MYSQL_USER} < /sql/dougbeal_wp116.sql"
     
-  webserver:
-    build: webserver
+  webserver-wordpress:
+    build: webserver-wordpress
     depends_on:
       - pgp
-      - wordpress      
+      - wordpress
+    links:
+      - wordpress    
     ports:
       - "8000:80"
     restart: always
@@ -74,10 +76,13 @@ services:
     networks:
       - backend
       - debug
+    command: "/wait-for ${DATABASE_HOST}:${DATABASE_PORT} -- php-fpm"
 
   webserver-quill:
-    build: webserver
+    build: webserver-quill
     depends_on:
+      - quill
+    links:
       - quill
     ports:
       - "8001:80"
@@ -107,53 +112,40 @@ services:
       - quill:${WEBSERVER_ROOT}/Quill
     networks:
       - backend
-      - debug      
+      - debug
+    command: "/wait-for ${DATABASE_HOST}:${DATABASE_PORT} -- php-fpm"
     
   
-  # wordpress-cli:
-  #   build: wordpress/cli
-  #   depends_on:
-  #     - wordpress
-  #   volumes:
-  #     - wordpress:${WORDPRESS_PATH}
-  #     - wordpress-themes:${WORDPRESS_PATH}/wp-content/themes
-  #     - wordpress-plugins:${WORDPRESS_PATH}/wp-content/plugins
-  #   links:
-  #     - database
-  #     - wordpress      
+  # redis:
+  #   image: redis:alpine
   #   networks:
-  #     - backend      
+  #     - backend
+  #     - debug
 
-  redis:
-    image: redis:alpine
-    networks:
-      - backend
-      - debug
+  # indieauth:
+  #   depends_on:
+  #     - redis
+  #   build: indieauth
+  #   links:
+  #     - redis
+  #   environment:
+  #     /indieweb/indieauth/redis/hostname: redis
+  #     /indieweb/indieauth/redis/port: 6379
+  #     /indieweb/indieauth/domain: indieauth
+  #     /indieweb/indieauth/port: ${INDIEAUTH_PORT}
+  #   networks:
+  #     - backend
+  #     - debug
 
-  indieauth:
-    depends_on:
-      - redis
-    build: indieauth
-    links:
-      - redis
-    environment:
-      /indieweb/indieauth/redis/hostname: redis
-      /indieweb/indieauth/redis/port: 6379
-      /indieweb/indieauth/domain: indieauth
-      /indieweb/indieauth/port: ${INDIEAUTH_PORT}
-    networks:
-      - backend
-      - debug
-
-  ownyourgram:
-    build: ownyourgram
-    depends_on:
-      - webserver
-    volumes:
-      - ownyougram:/app/ownyourgram.com
-    networks:
-      - backend
-      - debug
+  # ownyourgram:
+  #   build: ownyourgram
+  #   depends_on:
+  #     - webserver
+  #   volumes:
+  #     - ownyougram:/app/ownyourgram.com
+  #   networks:
+  #     - backend
+  #     - debug
 
 
 volumes:
