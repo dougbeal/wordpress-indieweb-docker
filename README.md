@@ -78,3 +78,10 @@ aaronpk oh and double check but i think OYS needs Redis and OYG does not
 * Sinatra
 * nginx reverse proxy
 * `bundle exec thin`
+
+
+# rebuild specific container
+docker-compose -f docker-compose.yml build webserver-quill
+
+You can only do one mapping between container and host port, so need
+seperate webservers for wordpress and quill
