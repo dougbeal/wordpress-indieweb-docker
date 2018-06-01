@@ -1,7 +1,7 @@
-version: '3.0'
+version: '3'
 
 services:
-  webserver:
+  webserver-wordpress:
     command: ["nginx-debug", "-g", "daemon off;"]
   webserver-quill:
     command: ["nginx-debug", "-g", "daemon off;"]    
