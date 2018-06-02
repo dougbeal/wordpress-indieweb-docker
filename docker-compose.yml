@@ -1,5 +1,6 @@
 version: '3'
 
+# see .env for shared variabvles
 services:
   database:
     image: mariadb:5.5
@@ -95,7 +96,7 @@ services:
       #   volume:
       #     nocopy: true
       #     read_only: true
-      - quill:${WEBSERVER_ROOT}
+      - quill:/var/www/html/Quill
     environment:
       NGINX_HOST: ${HOSTNAME}
       NGINX_PORT: 80
@@ -161,12 +162,6 @@ volumes:
       type: none
       device: ${PWD}/volumes/wordpress
       o: bind
-  quill:
-    driver: local
-    driver_opts:
-      type: none
-      device: ${PWD}/volumes/quill
-      o: bind      
   wordpress-themes:
     driver: local
     driver_opts:
@@ -193,11 +188,6 @@ volumes:
       o: bind
   public-key:
   quill:
-    driver: local
-    driver_opts:
-      type: none
-      device: ${PWD}/volumes/quill
-      o: bind    
   sempress:      
   sempress-child:
   nginx-config:
