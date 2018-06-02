@@ -1,8 +1,7 @@
-FROM php:7.2-fpm-alpine
+FROM quill:latest
 
 ADD php-fpm.conf /usr/local/etc/
 
 COPY wait-for /
-
 
 
